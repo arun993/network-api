@@ -37,6 +37,7 @@ codegen-units = 256
 incremental = true
 
 [dependencies]
+prost-build = ">=0.11.0"  # Minimum version supporting proto3 optional
 async-stream = "0.3"
 clap = { version = "4.5", features = ["derive"] }
 futures = "0.3"
@@ -62,6 +63,7 @@ native-tls = "0.2"
 serde ={ version = "1.0.217", features = ["derive"]}
 serde_json = { version = "1.0.138"}
 regex = "1.5"
+
 
 nexus-core = { git = "https://github.com/nexus-xyz/nexus-zkvm", branch = "neo", package = "nexus-core" }
 nexus-vm = { git = "https://github.com/nexus-xyz/nexus-zkvm", branch = "neo", package = "nexus-vm" }
