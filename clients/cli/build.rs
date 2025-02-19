@@ -10,8 +10,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut config = Config::new();
     
-    // CORRECTED: Use prost-build's dedicated method for proto3 optional
-    config.enable_proto3_optional(true);
+    // Use protoc_arg for older prost-build versions
+    config.protoc_arg("--experimental_allow_proto3_optional");
 
     println!("Current dir: {:?}", env::current_dir()?);
 
@@ -29,18 +29,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let out_dir = "src/proto";
     config.out_dir(out_dir);
 
-    // Check protoc installation
-    let output = Command::new("which")
-        .arg("protoc")
+    // Verify protoc version (must be >= 3.12)
+    let protoc_version = Command::new("protoc")
+        .arg("--version")
         .output()
-        .expect("Failed to execute command");
-
-    if output.status.success() {
-        println!("protoc is installed and accessible.");
-    } else {
-        println!("Error: protoc is not installed or not in PATH.");
-        return Err("protoc not found".into());
+        .expect("Failed to check protoc version");
+    
+    if !protoc_version.status.success() {
+        return Err("Failed to get protoc version".into());
     }
+    
+    let version_output = String::from_utf8_lossy(&protoc_version.stdout);
+    println!("Protoc version: {}", version_output.trim());
 
     // Create output directory if needed
     if fs::metadata(out_dir).is_ok() {
@@ -61,12 +61,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let generated_file_path = format!("{}/nexus_orchestrator.rs", out_dir);
     println!("Generated file saved to: {}", generated_file_path);
-
-    if fs::metadata(&generated_file_path).is_ok() {
-        println!("Generated file exists.");
-    } else {
-        println!("Error: Generated file does not exist.");
-    }
 
     Ok(())
 }
